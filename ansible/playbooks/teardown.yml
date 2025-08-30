@@ -1,0 +1,11 @@
+- name: Teardown Wazuh Stack
+  hosts: swarm_manager
+  become: true
+  collections:
+    - community.docker
+  tasks:
+    - name: Remove Wazuh stack
+      community.docker.docker_stack:
+        name: wazuh
+        state: absent
+

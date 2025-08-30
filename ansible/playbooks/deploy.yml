@@ -1,0 +1,12 @@
+- name: Deploy Wazuh Stack
+  hosts: swarm_manager
+  become: true
+  collections:
+    - community.docker
+  tasks:
+    - name: Deploy Wazuh stack
+      community.docker.docker_stack:
+        name: wazuh
+        state: present
+        compose:
+          - "{{ playbook_dir }}/../../stack/wazuh-stack.yml"
