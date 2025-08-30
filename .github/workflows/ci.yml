@@ -1,0 +1,14 @@
+name: Test Runner
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  hello-world:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: Say hello
+        run: echo "Runner is working on $(hostname)"
+
