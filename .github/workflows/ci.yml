@@ -1,14 +1,61 @@
-name: Test Runner
+name: Mini-SOC CI/CD Pipeline
 
 on:
+  pull_request:
+    branches: [ main ]
   push:
     branches: [ main ]
 
 jobs:
-  hello-world:
+  trivy-scan:
+    name: Security Scan with Trivy
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - name: Say hello
-        run: echo "Runner is working on $(hostname)"
+
+      - name: Install Trivy
+        run: |
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.55.0/trivy_0.55.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.55.0_Linux-64bit.deb
+
+      - name: Run Trivy scan on repo
+        run: trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+
+  selenium-test:
+    name: Selenium Smoke Test
+    needs: trivy-scan
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Python & dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip3 install selenium requests
+
+      - name: Run Selenium test
+        run: python3 tests/selenium/test_example.py
+
+  deploy:
+    name: Deploy with Ansible
+    needs: selenium-test
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Run Ansible Playbook
+        run: ansible-playbook ansible/playbooks/deploy.yml -i ansible/inventories/hosts.ini
 
