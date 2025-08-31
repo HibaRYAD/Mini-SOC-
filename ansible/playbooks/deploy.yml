@@ -1,12 +1,24 @@
-- name: Deploy Wazuh Stack
-  hosts: swarm_manager
-  become: true
-  collections:
-    - community.docker
+---
+- name: Deploy Wazuh stack to Docker Swarm
+  hosts: manager
+  become: yes
+
   tasks:
-    - name: Deploy Wazuh stack
-      community.docker.docker_stack:
-        name: wazuh
-        state: present
-        compose:
-          - "{{ playbook_dir }}/../../stack/wazuh-stack.yml"
+    - name: Ensure stack file exists on manager
+      copy:
+        src: ../../stack/wazuh-stack.yml
+        dest: /home/{{ ansible_user }}/wazuh-stack.yml
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+
+    - name: Remove old Wazuh stack (if any)
+      command: docker stack rm wazuh
+      ignore_errors: yes
+
+    - name: Wait a few seconds before redeploy
+      pause:
+        seconds: 10
+
+    - name: Deploy updated Wazuh stack
+      command: docker stack deploy -c /home/{{ ansible_user }}/wazuh-stack.yml wazuh

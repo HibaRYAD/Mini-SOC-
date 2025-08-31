@@ -53,12 +53,7 @@ services:
       - internal
       - public
     deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.wazuh.rule=Host(`wazuh.lab`)
-        - traefik.http.routers.wazuh.entrypoints=websecure
-        - traefik.http.routers.wazuh.tls.certresolver=le
-        - traefik.http.services.wazuh.loadbalancer.server.port=5601
       placement:
         constraints:
           - node.role == worker
+
