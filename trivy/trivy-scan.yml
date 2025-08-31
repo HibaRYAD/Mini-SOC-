@@ -1,19 +1,18 @@
 version: "1"
 
-policy:
-  severity:
-    - CRITICAL
-    - HIGH
+severity:
+  - CRITICAL
+  - HIGH
 
-images:
-  - "wazuh/wazuh-indexer:4.9.2"
-  - "wazuh/wazuh-manager:4.9.2"
-  - "wazuh/wazuh-dashboard:4.9.2"
+checks:
+  vuln:
+    enabled: true
 
-scanners:
-  vuln: true
-  misconf: true
-  secret: true
+  misconfig:
+    enabled: true
 
-ignore-unfixed: true
-format: table
+  secret:
+    enabled: true
+
+skip-dirs:
+  - tests/
