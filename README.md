@@ -13,7 +13,7 @@ Network:
 - `internal` overlay network: for Wazuh internal communication (indexer, manager).
 
 ## What is included (implemented files & features)
-- `stack/wazuh-stack.yml` — Docker Swarm stack definition for Wazuh (Indexer, Manager, Dashboard). Uses Wazuh images `4.9.2`. Dashboard is labelled for existing `edge-traefik` ingress.
+- `stack/wazuh-stack.yml` — Docker Swarm stack definition for Wazuh (Indexer, Manager, Dashboard). Uses Wazuh images `4.9.2`. Dashboard is labelled for`edge-traefik` ingress.
 - `ansible/`:
   - `inventories/hosts.yml` — sample inventory for manager and worker nodes.
   - `playbooks/deploy.yml` — Ansible playbook to copy stack files and deploy the Wazuh stack.
