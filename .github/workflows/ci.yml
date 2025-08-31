@@ -11,20 +11,20 @@ env:
 
 jobs:
   trivy_scan:
-    name: Trivy configuration & image scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Run Trivy config scan
-        uses: aquasecurity/trivy-action@v0.65.0
+      - name: Run Trivy scan
+        uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
+          scan-type: 'config'
           format: 'table'
-          exit-code: '0'
+          exit-code: '1'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
+          scanners: 'vuln,secret,misconfig,license'
 
       - name: Run Trivy image policy checks (local example)
         run: |
@@ -72,5 +72,5 @@ jobs:
         run: |
           pip install ansible==8.* || true
           ansible-galaxy collection install community.docker --force || true
-          ansible-playbook ansible/playbooks/deploy.yml -i ansible/inventories/hosts.yml
+          ansible-playbook ansible/playbooks/deploy.yml
 
