@@ -2,23 +2,33 @@
 - name: Deploy Wazuh stack to Docker Swarm
   hosts: manager
   become: yes
+  vars:
+    repo_stack_dir: /opt/mini-soc-stack
 
   tasks:
-    - name: Ensure stack file exists on manager
-      copy:
-        src: ../../stack/wazuh-stack.yml
-        dest: /home/{{ ansible_user }}/wazuh-stack.yml
+    - name: Ensure destination dir exists
+      file:
+        path: "{{ repo_stack_dir }}"
+        state: directory
         owner: "{{ ansible_user }}"
-        group: "{{ ansible_user }}"
-        mode: '0644'
+        mode: 0755
 
-    - name: Remove old Wazuh stack (if any)
+    - name: Copy stack files (stack directory)
+      copy:
+        src: ../../stack/
+        dest: "{{ repo_stack_dir }}"
+        owner: "{{ ansible_user }}"
+        mode: '0644'
+      delegate_to: localhost
+
+    - name: Remove previous wazuh stack (ignore failures)
       command: docker stack rm wazuh
       ignore_errors: yes
 
-    - name: Wait a few seconds before redeploy
+    - name: Pause briefly for cleanup
       pause:
-        seconds: 10
+        seconds: 8
 
     - name: Deploy updated Wazuh stack
-      command: docker stack deploy -c /home/{{ ansible_user }}/wazuh-stack.yml wazuh
+      command: docker stack deploy -c "{{ repo_stack_dir }}/wazuh-stack.yml" wazuh
+

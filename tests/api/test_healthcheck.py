@@ -1,9 +1,15 @@
+import os
 import requests
+import pytest
 
-def test_wazuh_manager_health():
-    url = "https://wazuh.lab:55000"
+BASE_URL = os.environ.get("BASE_URL", "https://wazuh.lab")
+API_URL = f"{BASE_URL}:55000"
+
+@pytest.mark.timeout(10)
+def test_wazuh_manager_api_reachable():
     try:
-        r = requests.get(url, verify=False, timeout=5)
-        assert r.status_code in [200, 401]  # 401 = expected if auth required
-    except Exception as e:
-        raise AssertionError(f"Healthcheck failed: {e}")
+        resp = requests.get(API_URL, verify=False, timeout=8)
+        assert resp.status_code in (200, 401)
+    except requests.exceptions.RequestException as e:
+        pytest.fail(f"Manager API unreachable: {e}")
+

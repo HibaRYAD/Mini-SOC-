@@ -27,6 +27,10 @@ services:
       placement:
         constraints:
           - node.role == worker
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+        window: 120s
 
   wazuh_manager:
     image: wazuh/wazuh-manager:4.9.2
@@ -44,6 +48,10 @@ services:
       placement:
         constraints:
           - node.role == worker
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+        window: 120s
 
   wazuh_dashboard:
     image: wazuh/wazuh-dashboard:4.9.2
@@ -60,3 +68,7 @@ services:
         - traefik.http.routers.wazuh.entrypoints=websecure
         - traefik.http.routers.wazuh.tls=true
         - traefik.http.services.wazuh.loadbalancer.server.port=5601
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+        window: 120s

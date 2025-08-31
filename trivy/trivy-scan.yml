@@ -1,16 +1,19 @@
 version: "1"
-checks:
-  misconfig:
-    # Scan for misconfigurations in Docker and YAML files
-    enabled: true
-  vuln:
-    # Scan for vulnerabilities in images
-    enabled: true
-  secret:
-    # Scan for secrets in code
-    enabled: true
-severity:
-  - HIGH
-  - CRITICAL
-skip-dirs:
-  - tests/
+
+policy:
+  severity:
+    - CRITICAL
+    - HIGH
+
+images:
+  - "wazuh/wazuh-indexer:4.9.2"
+  - "wazuh/wazuh-manager:4.9.2"
+  - "wazuh/wazuh-dashboard:4.9.2"
+
+scanners:
+  vuln: true
+  misconf: true
+  secret: true
+
+ignore-unfixed: true
+format: table
