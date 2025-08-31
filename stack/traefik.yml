@@ -1,0 +1,40 @@
+version: "3.9"
+
+networks:
+  public:
+    external: true
+
+services:
+  traefik:
+    image: traefik:v2.11
+    command:
+      - --providers.swarm=true
+      - --providers.swarm.exposedByDefault=false
+      - --providers.swarm.network=public
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
+      - --api.dashboard=true
+      # Optional: redirect all HTTP->HTTPS
+      - --entrypoints.web.http.redirections.entryPoint.to=websecure
+      - --entrypoints.web.http.redirections.entryPoint.scheme=https
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/traefik/dynamic:/etc/traefik/dynamic:ro
+      - /opt/traefik/certs:/etc/traefik/certs:ro
+    networks:
+      - public
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - traefik.enable=true
+        # (Optional) expose Traefik dashboard at https://traefik.wazuh.lab
+        - traefik.http.routers.traefik.rule=Host(`traefik.wazuh.lab`)
+        - traefik.http.routers.traefik.entrypoints=websecure
+        - traefik.http.routers.traefik.tls=true
+        - traefik.http.routers.traefik.service=api@internal

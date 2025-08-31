@@ -54,4 +54,9 @@ services:
       placement:
         constraints:
           - node.role == worker
-
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.wazuh.rule=Host(`wazuh.lab`)
+        - traefik.http.routers.wazuh.entrypoints=websecure
+        - traefik.http.routers.wazuh.tls=true
+        - traefik.http.services.wazuh.loadbalancer.server.port=5601
